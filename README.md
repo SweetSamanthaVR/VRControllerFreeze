@@ -4,7 +4,7 @@
 
 <h1 align="center">VR Controller Freeze</h1>
 
-<p align="center">Hold either VR controller still in SteamVR while its buttons, sticks, triggers, finger tracking and vibration keep working.</p>
+<p align="center">Freeze a VR controller's position in SteamVR: the in-game hand stays put while you move the real controller, and its buttons, sticks, triggers, finger tracking and vibration keep working.</p>
 
 <p align="center">
   <img src="docs/screenshot.png" alt="VR Controller Freeze with the left hand frozen and the right hand live" width="720">
