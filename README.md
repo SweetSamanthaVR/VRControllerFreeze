@@ -38,13 +38,12 @@ A small SteamVR driver sits between Steam Link and SteamVR. When you freeze a ha
 
 Download `VRControllerFreeze-<version>-win-x64.zip` from the [latest release](https://github.com/SweetSamanthaVR/VRControllerFreeze/releases/latest). GitHub builds and tests it from the source in this repository.
 
-1. Right-click the zip, choose **Properties**, tick **Unblock** and click **OK**. This stops Windows warning about every file inside it.
-2. Extract it to a folder you will keep, for example `C:\VR`. SteamVR loads the driver from this folder, so do not leave it in Downloads; if you ever move it, run `install-driver.cmd` again.
-3. Close SteamVR completely, then run `install-driver.cmd` in the extracted `VRControllerFreeze` folder.
+1. Extract the zip to a folder you will keep, for example `C:\VR`. SteamVR loads the driver from this folder, so do not leave it in Downloads; if you ever move it, run `install-driver.cmd` again.
+2. Close SteamVR completely, then run `install-driver.cmd` in the extracted `VRControllerFreeze` folder.
 
 The installer backs up your SteamVR settings first and undoes everything if any step fails.
 
-The app and driver are not code-signed. If Windows shows "Windows protected your PC" when you first start `VRControllerFreeze.exe`, click **More info**, then **Run anyway**. Some antivirus tools may also flag `driver_vrcontrollerfreeze.dll`, because it hooks into SteamVR's controller position updates. That is how freezing works, not a sign that anything is wrong; the full source is in this repository.
+The app and driver are not code-signed, so Windows may warn before running `install-driver.cmd` or `VRControllerFreeze.exe` the first time. Choose **Run**, or **More info** then **Run anyway**. Some antivirus tools may also flag `driver_vrcontrollerfreeze.dll`, because it hooks into SteamVR's controller position updates. That is how freezing works, not a sign that anything is wrong; the full source is in this repository.
 
 **Updating:** close SteamVR, extract the new version, and run its `install-driver.cmd`. It replaces the old version's registration, so there is nothing to uninstall first.
 
