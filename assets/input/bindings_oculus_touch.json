@@ -1,0 +1,39 @@
+{
+  "bindings": {
+    "/actions/vrcontrollerfreeze": {
+      "sources": [
+        {
+          "inputs": {
+            "long": {
+              "output": "/actions/vrcontrollerfreeze/in/toggle_left"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/left/input/joystick"
+        },
+        {
+          "inputs": {
+            "long": {
+              "output": "/actions/vrcontrollerfreeze/in/toggle_right"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/right/input/joystick"
+        }
+      ],
+      "haptics": [
+        {
+          "output": "/actions/vrcontrollerfreeze/out/haptic_left",
+          "path": "/user/hand/left/output/haptic"
+        },
+        {
+          "output": "/actions/vrcontrollerfreeze/out/haptic_right",
+          "path": "/user/hand/right/output/haptic"
+        }
+      ]
+    }
+  },
+  "controller_type": "oculus_touch",
+  "description": "Default VR Controller Freeze bindings for Meta/Oculus Touch controllers. Long-press a thumbstick to toggle that hand; a normal click is left to the game.",
+  "name": "VR Controller Freeze (Oculus Touch)"
+}

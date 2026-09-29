@@ -1,0 +1,17 @@
+{
+  "source": "builtin",
+  "applications": [
+    {
+      "app_key": "com.vrcontrollerfreeze.app",
+      "launch_type": "binary",
+      "binary_path_windows": "VRControllerFreeze.exe",
+      "is_dashboard_overlay": false,
+      "action_manifest_path": "input/actions.json",
+      "strings": {
+        "en_GB": {
+          "name": "VR Controller Freeze"
+        }
+      }
+    }
+  ]
+}

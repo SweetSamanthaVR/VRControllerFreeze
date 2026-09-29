@@ -1,0 +1,6 @@
+# Store and check out text as LF, except Windows batch files, which cmd.exe expects as CRLF.
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ico binary
+*.png binary

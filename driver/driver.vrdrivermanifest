@@ -1,0 +1,7 @@
+{
+  "alwaysActivate": true,
+  "name": "vrcontrollerfreeze",
+  "directory": "",
+  "resourceOnly": false,
+  "hmd_presence": []
+}

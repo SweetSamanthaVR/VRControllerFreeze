@@ -1,0 +1,9 @@
+/build/
+/.vs/
+/out/
+*.user
+*.suo
+*.VC.db
+VRControllerFreeze-diagnostics.txt
+__pycache__/
+*.pyc

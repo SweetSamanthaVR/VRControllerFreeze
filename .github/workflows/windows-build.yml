@@ -1,0 +1,29 @@
+name: Windows build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      # Builds the release, then runs the static checks, the app logic unit tests and the driver
+      # harness (standalone and behind a calibrator-style hook). Fails on the first failure.
+      - name: Build and test
+        shell: pwsh
+        run: tools/build.ps1 -Test
+
+      - name: Upload staged build
+        uses: actions/upload-artifact@v4
+        with:
+          name: VRControllerFreeze-Windows-x64
+          path: build/dist
+          if-no-files-found: error
