@@ -40,8 +40,8 @@ static void TestHandState() {
           "freeze after the role moved is flagged");
     view.targetDevice = kInvalidDeviceIndex;
     summary = SummariseHand(view);
-    CHECK(FreezeNotInEffect(view) && summary.note.tone == Tone::Warning && Contains(summary.note.text, L"put down or asleep"),
-          "freeze while no device holds the role says the controller was put down");
+    CHECK(FreezeNotInEffect(view) && summary.note.tone == Tone::Warning && Contains(summary.note.text, L"no controller holds this hand"),
+          "freeze while no device holds the role says no controller holds the hand");
 
     view = Healthy();
     view.pending = true;
@@ -83,10 +83,12 @@ static void TestStatusSummaries() {
     CHECK(DeviceLabel(2, L"") == L"Device 2", "device label: without model");
 
     using State = PoseStreamMonitor::State;
-    CHECK(TrackingSummary(1, State::Streaming).tone == Tone::Good, "tracking: movement coming through");
-    CHECK(TrackingSummary(1, State::Silent).tone == Tone::Warning, "tracking: no movement is a warning");
-    CHECK(TrackingSummary(1, State::Unknown).tone == Tone::Muted, "tracking: still checking");
-    CHECK(TrackingSummary(kInvalidDeviceIndex, State::Streaming).tone == Tone::Muted, "tracking: no controller");
+    CHECK(TrackingSummary(1, State::Streaming, false).tone == Tone::Good, "tracking: movement coming through");
+    CHECK(TrackingSummary(1, State::Silent, false).tone == Tone::Warning, "tracking: no movement is a warning");
+    const Summary asleep = TrackingSummary(1, State::Silent, true);
+    CHECK(asleep.tone == Tone::Muted && Contains(asleep.text, L"asleep"), "tracking: a frozen hand's sleeping controller is not a warning");
+    CHECK(TrackingSummary(1, State::Unknown, false).tone == Tone::Muted, "tracking: still checking");
+    CHECK(TrackingSummary(kInvalidDeviceIndex, State::Streaming, false).tone == Tone::Muted, "tracking: no controller");
 }
 
 static void TestResultText() {

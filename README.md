@@ -19,7 +19,8 @@ Made for VRChat on a Meta Quest Pro connected to SteamVR through **Steam Link**.
 - **Status pills** for SteamVR, the freeze driver and the pose hook, so you can see at a glance that freezing is available
 - **Emergency Release** unfreezes both hands at once, and the Live Log confirms it
 - **Press and hold a thumbstick** to freeze or unfreeze that hand without taking off the headset; a normal click is left to the game, and the button can be changed in SteamVR Bindings
-- Clear warnings when a frozen hand moves to another device (for example hand tracking) or its controller is put down or asleep, and a stated reason for every freeze that is refused
+- Put the controllers down and let them sleep: frozen hands stay exactly where they are, and do not jump when the controllers wake
+- Clear warnings when a frozen hand moves to another device (for example hand tracking), and a stated reason for every freeze that is refused
 - Fail-safe driver: lets go of both hands within three seconds if the app closes, crashes or stops responding (see [Safety](#safety))
 - Works alongside other pose hooks such as Space Calibrator and SmoothTracking
 - Dark mode by default, with a Light Mode switch the app remembers; DPI-aware, resizable window with full keyboard navigation
@@ -93,10 +94,11 @@ The Live Log explains what is happening. Common messages:
 | SteamVR is not running | Start SteamVR; the app connects on its own. |
 | SteamVR freeze driver is not running | Close SteamVR, run `install-driver.cmd`, and start SteamVR again. |
 | Driver pose hook: FAILED | Collect diagnostics (below) and report it; freezing cannot work until this is fixed. |
+| Left/Right controller is asleep; its frozen position is held | Nothing: the freeze holds while the controller sleeps, and the hand stays put when it wakes. |
 | Driver is not seeing pose updates | Wake the controller. If it persists, the controller's tracking driver bypasses the hook and cannot be frozen. |
 | Rejected: no recent tracked pose | The controller is asleep or not tracking. Move it and try again. |
 | Rejected: no controller holds this hand role | Turn the controller on, or check SteamVR can see it. |
-| Not in effect (amber card) | The controller is put down or asleep, or the hand is now a different device (for example hand tracking). The freeze applies again when the controller returns; otherwise unfreeze and freeze again. |
+| Not in effect (amber card) | The hand is now a different device (for example hand tracking), or the controller was switched off. The freeze applies again when the controller returns; otherwise unfreeze and freeze again. |
 | Emergency release not confirmed | Close the app: the driver lets go of both hands within three seconds. Then collect diagnostics. |
 | SteamVR could not identify this app | Custom bindings may not apply; the desktop buttons still work. |
 

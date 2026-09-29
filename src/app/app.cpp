@@ -219,7 +219,14 @@ void App::ObservePoseStream(Hand& hand, std::uint32_t nowMs) {
     const auto change = hand.stream.Update(*count, nowMs);
     if (!change) return;
     const std::wstring device = DeviceText(hand.device, hand.model);
-    if (*change == PoseStreamMonitor::State::Streaming) {
+    // A frozen hand's controller was streaming through the hook when it was frozen (the freeze needs a
+    // fresh pose), so if its updates stop now, the controller is asleep rather than bypassing the hook.
+    const bool frozen = View(hand).frozen;
+    if (frozen && *change == PoseStreamMonitor::State::Silent) {
+        Log(LogLevel::Info, std::wstring(Label(hand.left)) + L" controller is asleep (" + device + L"); its frozen position is held.");
+    } else if (frozen) {
+        Log(LogLevel::Info, std::wstring(Label(hand.left)) + L" controller is awake again (" + device + L"); its hand stays frozen.");
+    } else if (*change == PoseStreamMonitor::State::Streaming) {
         Log(LogLevel::Info, std::wstring(L"Driver is intercepting ") + Word(hand.left) + L" controller pose updates (" + device +
                                 L"). Freezing is available.");
     } else {
@@ -235,9 +242,10 @@ void App::ObserveFrozenRole(Hand& hand) {
     const FrozenRoleMonitor::Change change = hand.role.Update(view.driverHealthy && view.frozen, view.frozenDevice, hand.device);
     std::wstringstream message;
     if (change == FrozenRoleMonitor::Change::Moved && hand.device < 0) {
-        // Steam Link gives up the hand role while a controller is put down or asleep.
-        message << Label(hand.left) << L" controller put down or asleep: no device holds the " << Word(hand.left)
-                << L" hand, so the freeze has no effect for now. It applies again when the controller returns.";
+        // A frozen controller keeps its hand role while asleep (the driver hides the disconnect), so
+        // losing it means something else: the controller was switched off or lost by Steam Link.
+        message << L"No device holds the " << Word(hand.left) << L" hand (is the " << Word(hand.left)
+                << L" controller switched off?), so the freeze has no effect for now. It applies again when the controller returns.";
         Log(LogLevel::Warn, message.str());
     } else if (change == FrozenRoleMonitor::Change::Moved) {
         message << Label(hand.left) << L" hand moved from frozen device " << view.frozenDevice << L" to "
@@ -276,7 +284,7 @@ void App::RefreshUi() {
         HandPanelView& panel = hand->left ? view.left : view.right;
         panel.summary = SummariseHand(state);
         panel.device = DeviceLabel(hand->device, hand->model);
-        panel.tracking = TrackingSummary(hand->device, hand->stream.Current());
+        panel.tracking = TrackingSummary(hand->device, hand->stream.Current(), state.frozen);
         panel.held = IsHeld(state);
         panel.canFreeze = healthy && link_.HookActive() && hand->device >= 0;
     }
