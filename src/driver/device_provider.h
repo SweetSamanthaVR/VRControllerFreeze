@@ -23,6 +23,7 @@ private:
     struct HandRuntime {
         LONG lastProcessedRequestSequence = 0;
         LONG frozenDeviceIndex = kInvalidDeviceIndex;
+        bool liveDisconnected = false; // the frozen controller reports itself disconnected (asleep)
     };
 
     void ResetRuntime();
@@ -31,6 +32,7 @@ private:
     void ProcessHandRequest(HandRuntime& runtime, bool left);
     void ReleaseHand(HandRuntime& runtime, bool left);
     void ApplyWatchdog(bool appAlive);
+    void LogSleepingController(HandRuntime& runtime, bool left);
     void PublishHand(const HandRuntime& runtime, bool left);
 
     SharedMemory sharedMemory_;

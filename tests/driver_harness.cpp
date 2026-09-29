@@ -173,11 +173,16 @@ int main(int argc, char** argv) {
     Submit(2, MakePose(11, 12, 13));
     CHECK(g_received.index == 2 && g_received.pose.vecPosition[0] == 11 + shift, "other controller stays live while left is frozen");
 
+    // A controller going to sleep reports itself disconnected. While frozen, SteamVR must keep seeing
+    // the captured pose, connected, or it drops the hand role and the game's hand jumps on waking.
     vr::DriverPose_t disconnected = MakePose(99, 99, 99); disconnected.deviceIsConnected = false; disconnected.poseIsValid = false;
     Submit(1, disconnected);
-    CHECK(!g_received.pose.deviceIsConnected, "a real disconnect is not hidden while frozen");
+    CHECK(g_received.pose.deviceIsConnected && g_received.pose.poseIsValid && g_received.pose.vecPosition[0] == 1 + shift,
+          "a sleeping controller still reports its frozen pose, connected");
+    appTick(); provider->RunFrame();
+    CHECK(ReadSharedLong(left.frozen) == 1, "the freeze survives the controller sleeping");
     Submit(1, MakePose(51, 61, 71));
-    CHECK(g_received.pose.vecPosition[0] == 1 + shift, "still frozen after reconnect");
+    CHECK(g_received.pose.vecPosition[0] == 1 + shift && g_received.pose.vecVelocity[0] == 0, "still frozen, with no motion, when it wakes");
 
     // Unfreeze.
     WriteSharedLong(left.requested, 0); seq = Bump(left.sequence);
@@ -185,6 +190,9 @@ int main(int argc, char** argv) {
     CHECK(ReadSharedLong(left.result) == static_cast<LONG>(FreezeRequestResult::Live) && ReadSharedLong(left.frozen) == 0, "left unfreeze result Live");
     Submit(1, MakePose(52, 62, 72));
     CHECK(g_received.pose.vecPosition[0] == 52 + shift, "unfrozen device follows live pose again");
+    Submit(1, disconnected);
+    CHECK(!g_received.pose.deviceIsConnected, "once unfrozen, a disconnect is passed on as normal");
+    Submit(1, MakePose(52, 62, 72));
 
     // Rejections. The driver must never write the app-owned request flag.
     WriteSharedLong(left.target, 5);

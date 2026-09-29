@@ -117,6 +117,19 @@ void DeviceProvider::ReleaseHand(HandRuntime& runtime, bool left) {
     }
     DriverLog("VRControllerFreeze: %s hand released (device %ld).", HandName(left), static_cast<long>(runtime.frozenDeviceIndex));
     runtime.frozenDeviceIndex = kInvalidDeviceIndex;
+    runtime.liveDisconnected = false;
+}
+
+// Logs each time a frozen controller goes to sleep or wakes. SteamVR keeps seeing the frozen pose
+// throughout; these lines show in collect-diagnostics.cmd's report that the freeze held.
+void DeviceProvider::LogSleepingController(HandRuntime& runtime, bool left) {
+    if (runtime.frozenDeviceIndex == kInvalidDeviceIndex) return;
+    const bool disconnected = !pose_hook::LiveConnected(static_cast<std::uint32_t>(runtime.frozenDeviceIndex));
+    if (disconnected == runtime.liveDisconnected) return;
+    runtime.liveDisconnected = disconnected;
+    DriverLog(disconnected ? "VRControllerFreeze: %s controller (device %ld) reports disconnected, probably asleep; its frozen pose is held."
+                           : "VRControllerFreeze: %s controller (device %ld) is awake again; still frozen.",
+              HandName(left), static_cast<long>(runtime.frozenDeviceIndex));
 }
 
 void DeviceProvider::ProcessHandRequest(HandRuntime& runtime, bool left) {
@@ -211,6 +224,8 @@ void DeviceProvider::RunFrame() {
         ProcessHandRequest(leftRuntime_, true);
         ProcessHandRequest(rightRuntime_, false);
     }
+    LogSleepingController(leftRuntime_, true);
+    LogSleepingController(rightRuntime_, false);
     PublishHand(leftRuntime_, true);
     PublishHand(rightRuntime_, false);
 }

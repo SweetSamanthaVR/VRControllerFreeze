@@ -105,7 +105,7 @@ To report a problem, run `collect-diagnostics.cmd` and include the file it creat
 ## Safety
 
 - If the app closes, crashes or stops responding, the driver lets go of both hands within three seconds.
-- If a frozen controller disconnects, SteamVR is told so, rather than being shown a frozen position.
+- A frozen hand stays frozen even when its controller goes to sleep, so the in-game hand never drops or jumps when you put the controllers down or pick them up. Once you unfreeze it, the hand follows the controller again as soon as the controller is awake.
 - If SteamVR restarts, nothing is frozen again automatically.
 - The driver does nothing until the app has been started. After the app closes, it passes every position through unchanged.
 

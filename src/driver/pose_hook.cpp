@@ -45,8 +45,10 @@ void DetourTrackedDevicePoseUpdated(vr::IVRServerDriverHost* self, std::uint32_t
     slot.lastPose = pose;
     slot.lastPoseMs = ::GetTickCount();
     slot.hasPose = true;
-    // A disconnect is passed on rather than hidden behind the frozen pose.
-    if (slot.frozen && pose.deviceIsConnected) {
+    // A frozen device reports its captured pose whatever the controller says, including when it goes
+    // to sleep and reports itself disconnected: passing that on would make SteamVR drop the hand role,
+    // so games would lose the hand and snap it back when the controller wakes.
+    if (slot.frozen) {
         frozenPose = slot.frozenPose;
         submitFrozen = true;
     }
@@ -140,6 +142,15 @@ void ReleaseAll() {
     ::AcquireSRWLockExclusive(&g_lock);
     for (DeviceSlot& slot : g_devices) slot.frozen = false;
     ::ReleaseSRWLockExclusive(&g_lock);
+}
+
+bool LiveConnected(std::uint32_t deviceIndex) {
+    if (deviceIndex >= kMaxDevices) return false;
+    ::AcquireSRWLockShared(&g_lock);
+    const DeviceSlot& slot = g_devices[deviceIndex];
+    const bool connected = !slot.hasPose || slot.lastPose.deviceIsConnected;
+    ::ReleaseSRWLockShared(&g_lock);
+    return connected;
 }
 
 LONG PoseUpdateCount(std::uint32_t deviceIndex) {
