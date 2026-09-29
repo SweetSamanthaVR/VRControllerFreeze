@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Builds the release, then runs the static checks, the app logic unit tests and the driver
       # harness (standalone and behind a calibrator-style hook). Fails on the first failure.
@@ -22,7 +22,7 @@ jobs:
         run: tools/build.ps1 -Test
 
       - name: Upload staged build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: VRControllerFreeze-Windows-x64
           path: build/dist
