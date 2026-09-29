@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-project(VRControllerFreeze VERSION 1.0.0 DESCRIPTION "VR Controller Freeze" LANGUAGES C CXX)
+project(VRControllerFreeze VERSION 1.0.1 DESCRIPTION "VR Controller Freeze" LANGUAGES C CXX)
 
 if(NOT WIN32)
     message(FATAL_ERROR "VR Controller Freeze currently targets 64-bit Windows and SteamVR only.")
