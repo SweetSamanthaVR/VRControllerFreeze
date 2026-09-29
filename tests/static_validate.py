@@ -69,6 +69,7 @@ checks = {
     'hook always calls original': hook.count('g_original(self, deviceIndex') == 2,
     'hook refuses to install unpinned': 'GET_MODULE_HANDLE_EX_FLAG_PIN' in hook and 'HookError::PinModuleFailed' in hook,
     'freeze age read under the lock': 'Freeze(std::uint32_t deviceIndex, DWORD maxPoseAgeMs)' in hook and 'const DWORD nowMs = ::GetTickCount();' in hook,
+    'frozen pose held while the controller sleeps': 'if (slot.frozen) {' in hook and 'LogSleepingController' in provider,
     'frozen pose has zero motion': 'vecVelocity[i] = 0.0' in hook and 'vecAngularVelocity[i] = 0.0' in hook,
     'freeze requires a fresh valid pose': 'kMaxCapturePoseAgeMs' in provider and 'lastPose.poseIsValid' in hook,
     'no virtual devices registered': 'TrackedDeviceAdded' not in provider,

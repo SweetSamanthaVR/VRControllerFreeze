@@ -32,7 +32,7 @@ Over Steam Link the only source of controller tracking is the `vrlink` driver in
 
 The detour:
 - records each device's latest pose and a per-device update counter;
-- substitutes the captured pose for a frozen device, unless the incoming pose reports the device disconnected;
+- substitutes the captured pose for a frozen device, even when the incoming pose reports it disconnected: a controller that goes to sleep reports itself disconnected, and passing that on would make SteamVR drop the hand role, so games would lose the hand and snap it back when the controller wakes;
 - always calls the original function, so other hooks and vrserver still run;
 - passes through untouched any call whose pose-struct size differs from this SDK's `DriverPose_t`.
 

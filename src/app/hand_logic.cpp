@@ -23,7 +23,7 @@ HandSummary SummariseHand(const HandView& hand) {
     if (hand.frozen) {
         if (FreezeNotInEffect(hand)) {
             return {{L"Frozen", Tone::Warning},
-                    {hand.targetDevice < 0 ? L"Not in effect: the controller is put down or asleep."
+                    {hand.targetDevice < 0 ? L"Not in effect: no controller holds this hand. Is it switched off?"
                                            : L"Not in effect: this hand is now a different device.",
                      Tone::Warning}};
         }
@@ -60,11 +60,13 @@ std::wstring DeviceLabel(LONG deviceIndex, const std::wstring& modelName) {
     return text.str();
 }
 
-Summary TrackingSummary(LONG deviceIndex, PoseStreamMonitor::State state) {
+Summary TrackingSummary(LONG deviceIndex, PoseStreamMonitor::State state, bool frozen) {
     if (deviceIndex < 0) return {L"Controller put down, asleep or off", Tone::Muted};
     switch (state) {
     case PoseStreamMonitor::State::Streaming: return {L"Movement coming through", Tone::Good};
-    case PoseStreamMonitor::State::Silent: return {L"No movement coming through: wake the controller", Tone::Warning};
+    case PoseStreamMonitor::State::Silent:
+        if (frozen) return {L"Controller asleep: frozen position held", Tone::Muted};
+        return {L"No movement coming through: wake the controller", Tone::Warning};
     default: return {L"Checking movement...", Tone::Muted};
     }
 }

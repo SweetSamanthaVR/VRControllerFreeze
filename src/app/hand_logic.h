@@ -80,8 +80,9 @@ private:
     State state_ = State::Unknown;
 };
 
-// Whether pose updates are arriving for a hand's controller, for its card.
-Summary TrackingSummary(LONG deviceIndex, PoseStreamMonitor::State state);
+// Whether pose updates are arriving for a hand's controller, for its card. On a frozen hand, no
+// updates means the controller is asleep, which the freeze holds through, so it is not a warning.
+Summary TrackingSummary(LONG deviceIndex, PoseStreamMonitor::State state, bool frozen);
 
 // Detects a frozen hand's role moving to another device, and moving back.
 class FrozenRoleMonitor {
