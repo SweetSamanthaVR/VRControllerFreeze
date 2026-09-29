@@ -13,6 +13,11 @@ After building, runs the static checks, the app logic unit tests and the driver 
 behind a calibrator-style hook). Stops at the first failure. The harness refuses to run while SteamVR
 or the app is open.
 
+.PARAMETER Package
+After building (and testing and signing, if asked), zips build\dist into
+build\VRControllerFreeze-<version>-win-x64.zip for a GitHub Release. The zip holds one folder,
+VRControllerFreeze, so it extracts tidily.
+
 .PARAMETER CertificateThumbprint
 Signs VRControllerFreeze.exe and the driver DLL with this code-signing certificate from the
 current user's or local machine's certificate store, with an RFC 3161 timestamp.
@@ -25,6 +30,7 @@ param(
     [string]$Configuration = 'Release',
     [switch]$Clean,
     [switch]$Test,
+    [switch]$Package,
     [string]$CertificateThumbprint,
     [string]$TimestampUrl = 'http://timestamp.digicert.com'
 )
@@ -154,6 +160,26 @@ if ($Test) {
         & (Join-Path $testDir 'driver_harness.exe') $binaries[1] --with-calibrator | Select-Object -Last 1
     }
     Write-Host 'All tests passed.' -ForegroundColor Green
+}
+
+if ($Package) {
+    $zip = Join-Path $buildDir "VRControllerFreeze-$ProductVersion-win-x64.zip"
+    Write-Host "Packaging $(Split-Path -Leaf $zip)..." -ForegroundColor Cyan
+    if (Test-Path -LiteralPath $zip) { Remove-Item -LiteralPath $zip -Force }
+    # Entries are named by hand: the zip format requires forward slashes, which Windows
+    # PowerShell's ZipFile.CreateFromDirectory does not use.
+    Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem
+    $distFull = (Resolve-Path -LiteralPath $dist).Path.TrimEnd('\')
+    $archive = [IO.Compression.ZipFile]::Open($zip, [IO.Compression.ZipArchiveMode]::Create)
+    try {
+        foreach ($file in Get-ChildItem -LiteralPath $distFull -Recurse -File) {
+            $entry = 'VRControllerFreeze/' + $file.FullName.Substring($distFull.Length + 1).Replace('\', '/')
+            $null = [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive, $file.FullName, $entry, [IO.Compression.CompressionLevel]::Optimal)
+        }
+    } finally {
+        $archive.Dispose()
+    }
+    Write-Host "Package: $zip" -ForegroundColor Green
 }
 
 Write-Host "Build complete: $dist" -ForegroundColor Green

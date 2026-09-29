@@ -9,8 +9,7 @@ if (Get-Process vrserver -ErrorAction SilentlyContinue) {
     throw "SteamVR is running. Exit SteamVR completely before installing $ProductName."
 }
 
-$root = Split-Path -Parent $PSScriptRoot
-$driverRoot = Join-Path $root "build\dist\driver\$DriverName"
+$driverRoot = Join-Path $AppRoot "driver\$DriverName"
 $driverDll = Join-Path $driverRoot "bin\win64\driver_$DriverName.dll"
 if (!(Test-Path -LiteralPath $driverDll)) { throw 'Built driver not found. Run build.cmd first.' }
 

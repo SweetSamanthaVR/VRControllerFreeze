@@ -6,8 +6,20 @@ param()
 $ProductName = "VR Controller Freeze"
 # SteamVR driver name: the driver folder, driver_<name>.dll and the driver_<name> settings section.
 $DriverName = 'vrcontrollerfreeze'
-# CMakeLists.txt is the single source of the version number.
-$ProductVersion = (Select-String -LiteralPath (Join-Path (Split-Path -Parent $PSScriptRoot) 'CMakeLists.txt') -Pattern 'VERSION\s+(\d+\.\d+\.\d+)' | Select-Object -First 1).Matches[0].Groups[1].Value
+
+# The folder holding the app and the driver. These scripts run either from the project, where the
+# build stages everything in build\dist, or from a downloaded release, which is that folder itself.
+$AppRoot = Split-Path -Parent $PSScriptRoot
+if (-not (Test-Path -LiteralPath (Join-Path $AppRoot 'VRControllerFreeze.exe'))) { $AppRoot = Join-Path $AppRoot 'build\dist' }
+
+# CMakeLists.txt is the single source of the version number; a downloaded release has no
+# CMakeLists.txt, so there the version is read from the app, which the build stamped with it.
+$cmakeLists = Join-Path (Split-Path -Parent $PSScriptRoot) 'CMakeLists.txt'
+if (Test-Path -LiteralPath $cmakeLists) {
+    $ProductVersion = (Select-String -LiteralPath $cmakeLists -Pattern 'VERSION\s+(\d+\.\d+\.\d+)' | Select-Object -First 1).Matches[0].Groups[1].Value
+} else {
+    $ProductVersion = (Get-Item -LiteralPath (Join-Path $AppRoot 'VRControllerFreeze.exe')).VersionInfo.ProductVersion
+}
 
 function Find-SteamVRPath {
     $candidates = New-Object System.Collections.Generic.List[string]

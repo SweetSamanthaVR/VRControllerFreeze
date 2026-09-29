@@ -122,9 +122,16 @@ target_link_options(VRControllerFreeze PRIVATE $<$<CONFIG:Release>:/guard:cf> $<
 set(DIST_DIR "${CMAKE_BINARY_DIR}/dist")
 set(DRIVER_DIST_DIR "${DIST_DIR}/driver/vrcontrollerfreeze")
 set(DRIVER_BIN_DIR "${DRIVER_DIST_DIR}/bin/win64")
+# build/dist is a complete release: the app, the driver, and the scripts that install and remove it,
+# laid out as in the project so the same launchers work from both.
 add_custom_target(stage ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory "${DIST_DIR}/input"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${DIST_DIR}/tools"
     COMMAND ${CMAKE_COMMAND} -E make_directory "${DRIVER_BIN_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/install-driver.cmd" "${CMAKE_SOURCE_DIR}/uninstall-driver.cmd"
+        "${CMAKE_SOURCE_DIR}/collect-diagnostics.cmd" "${DIST_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/tools/install-driver.ps1" "${CMAKE_SOURCE_DIR}/tools/uninstall-driver.ps1"
+        "${CMAKE_SOURCE_DIR}/tools/collect-diagnostics.ps1" "${CMAKE_SOURCE_DIR}/tools/steamvr-paths.ps1" "${DIST_DIR}/tools"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:VRControllerFreeze>" "${DIST_DIR}/VRControllerFreeze.exe"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${OPENVR_DLL}" "${DIST_DIR}/openvr_api.dll"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/assets/vrcontrollerfreeze.vrmanifest" "${DIST_DIR}/vrcontrollerfreeze.vrmanifest"

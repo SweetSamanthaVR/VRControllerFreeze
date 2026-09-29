@@ -104,6 +104,13 @@ checks = {
     'build script runs every test': all(t in build for t in ('app_logic_tests.exe', 'driver_harness.exe', '--with-calibrator', 'static_validate.py')),
     'build script can sign': 'signtool' in build and '/tr' in build,
     'CI runs the full test build': 'tools/build.ps1 -Test' in workflow or 'tools\\build.ps1 -Test' in workflow,
+    # Release download: build/dist is installable on its own, zipped and attached by CI.
+    'release folder includes the install scripts': all(f in cmake for f in ('install-driver.cmd', 'uninstall-driver.cmd', 'collect-diagnostics.cmd',
+                                                                            'tools/steamvr-paths.ps1')),
+    'scripts work from the project and from a release': '$AppRoot' in paths and 'VersionInfo.ProductVersion' in paths
+                                                        and '$AppRoot' in install and '$AppRoot' in uninstall,
+    'build script can package': '[switch]$Package' in build and 'ZipFileExtensions' in build and '-win-x64.zip' in build,
+    'CI attaches the tested package to releases': '-Package' in workflow and 'gh release upload' in workflow and 'contents: write' in workflow,
     'installer has no dead -WhatIf support': 'SupportsShouldProcess' not in install,
     'installer rolls back unregistered drivers': 'foreach ($other in $unregistered)' in install,
     'installer removes stale registrations': 'Get-RegisteredDriverCopies' in install,

@@ -33,24 +33,35 @@ A small SteamVR driver sits between Steam Link and SteamVR. When you freeze a ha
 
 - Windows 10 or 11 (64-bit).
 - SteamVR, with the headset connected through Steam Link. Other connection methods may work; the Live Log tells you whether freezing is available (see [Troubleshooting](#troubleshooting)).
-- To build it: [Visual Studio 2026](https://visualstudio.microsoft.com/) with the "Desktop development with C++" workload (the free Community edition is fine), and an internet connection for the first build.
 
-## Install
+## Download
 
-There is no packaged download yet, so you build VR Controller Freeze yourself.
+Download `VRControllerFreeze-<version>-win-x64.zip` from the [latest release](https://github.com/SweetSamanthaVR/VRControllerFreeze/releases/latest). GitHub builds and tests it from the source in this repository.
+
+1. Right-click the zip, choose **Properties**, tick **Unblock** and click **OK**. This stops Windows warning about every file inside it.
+2. Extract it to a folder you will keep, for example `C:\VR`. SteamVR loads the driver from this folder, so do not leave it in Downloads; if you ever move it, run `install-driver.cmd` again.
+3. Close SteamVR completely, then run `install-driver.cmd` in the extracted `VRControllerFreeze` folder.
+
+The installer backs up your SteamVR settings first and undoes everything if any step fails.
+
+The app and driver are not code-signed. If Windows shows "Windows protected your PC" when you first start `VRControllerFreeze.exe`, click **More info**, then **Run anyway**. Some antivirus tools may also flag `driver_vrcontrollerfreeze.dll`, because it hooks into SteamVR's controller position updates. That is how freezing works, not a sign that anything is wrong; the full source is in this repository.
+
+**Updating:** close SteamVR, extract the new version, and run its `install-driver.cmd`. It replaces the old version's registration, so there is nothing to uninstall first.
+
+## Build from source
+
+Only needed if you want to build VR Controller Freeze yourself. It needs [Visual Studio 2026](https://visualstudio.microsoft.com/) with the "Desktop development with C++" workload (the free Community edition is fine), and an internet connection for the first build.
 
 1. Run `build.cmd`.
 2. Close SteamVR completely.
 3. Run `install-driver.cmd`.
 
-The installer backs up your SteamVR settings first and undoes everything if any step fails. Keep the project folder where it is: SteamVR loads the driver from inside it.
-
-The driver is not code-signed, and it works by hooking into SteamVR's controller position updates, so some antivirus tools may flag `driver_vrcontrollerfreeze.dll`. That is how freezing works, not a sign that anything is wrong; the full source is in this repository.
+Keep the project folder where it is: SteamVR loads the driver from inside it.
 
 ## Use
 
 1. Connect the Quest through Steam Link so SteamVR is running.
-2. Start `build\dist\VRControllerFreeze.exe`.
+2. Start `VRControllerFreeze.exe`, in the folder you extracted (or in `build\dist` if you built it yourself).
 3. Check the status pills at the top: SteamVR **Connected**, freeze driver **Running** and pose hook **Active**, each with a green dot. Each hand's card shows its controller and a green dot for "Movement coming through".
 4. Click **Freeze Left** or **Freeze Right** in a hand's card. The card turns blue and says **Frozen**; click **Unfreeze** to let go.
 
@@ -119,7 +130,7 @@ tests/        static checks, app logic unit tests and a driver harness
 tools/        build, install, uninstall and diagnostics scripts
 ```
 
-`build.cmd -Test` builds everything and runs every test, including a harness that loads the real driver into a fake SteamVR host; GitHub Actions runs the same on each push. Build options, code signing and the release checklist are in [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md), and how the driver and app work together is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+`build.cmd -Test` builds everything and runs every test, including a harness that loads the real driver into a fake SteamVR host. GitHub Actions runs the same on each push, and attaches the tested download to each release. Build options, code signing and the release checklist are in [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md), and how the driver and app work together is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Licence
 

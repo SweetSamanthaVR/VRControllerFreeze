@@ -9,8 +9,7 @@ if (Get-Process vrserver -ErrorAction SilentlyContinue) {
     throw "SteamVR is running. Exit SteamVR completely before uninstalling $ProductName."
 }
 
-$root = Split-Path -Parent $PSScriptRoot
-$driverRoot = Join-Path $root "build\dist\driver\$DriverName"
+$driverRoot = Join-Path $AppRoot "driver\$DriverName"
 $steamVR = Find-SteamVRPath
 $vrPathReg = Join-Path $steamVR 'bin\win64\vrpathreg.exe'
 $steamRoot = Find-SteamRoot $steamVR

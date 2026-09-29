@@ -13,11 +13,12 @@
 build.cmd                  :: Release build, staged in build\dist
 build.cmd -Clean           :: delete build\ first
 build.cmd -Test            :: build, then run every test (stops at the first failure)
+build.cmd -Package         :: also zip build\dist as build\VRControllerFreeze-<version>-win-x64.zip
 build.cmd -Configuration Debug
 build.cmd -CertificateThumbprint <SHA-1>   :: also code-sign the app and driver
 ```
 
-`build\dist` contains everything that ships: the app, `openvr_api.dll`, the SteamVR app manifest and input bindings, the driver folder, the README and the licences.
+`build\dist` contains everything that ships, laid out exactly as the release zip: the app, `openvr_api.dll`, the SteamVR app manifest and input bindings, the driver folder, the README, the licences, and the install, uninstall and diagnostics launchers with their scripts. The scripts find the driver next to themselves in a release, or in `build\dist` when run from the project. A release has no `CMakeLists.txt`, so there they read the version from `VRControllerFreeze.exe`, which the build stamps with it.
 
 The project's own C++ code builds with `/W4 /permissive-`, and warnings are errors in Release. Both binaries use Control Flow Guard, ASLR and DEP (`/guard:cf /DYNAMICBASE /NXCOMPAT`). MinHook's C sources are compiled with warnings suppressed.
 
@@ -85,9 +86,21 @@ Both binaries are signed with SHA-256 and an RFC 3161 timestamp (default `http:/
 
 `docs/screenshot.png` is a capture of the window in dark mode with the left hand frozen. Retake it when the window's look changes.
 
+## Releasing
+
+The workflow builds, tests and zips the project, then attaches the zip to the release, so every download is a clean, tested build of the tagged source.
+
+1. Work through the release checklist below.
+2. On GitHub, draft a new release whose tag matches the version in `CMakeLists.txt` (`v1.0.0` for 1.0.0).
+3. Optional: to see the zip on the draft before anyone else can, open **Actions → Windows build → Run workflow** and enter the tag.
+4. Publish the release. The workflow attaches `VRControllerFreeze-<version>-win-x64.zip`, replacing any earlier copy. A tag that does not match the version fails the workflow instead of attaching the wrong build.
+
+The workflow's builds are unsigned, as the certificate stays on your PC. To ship signed binaries, build with `build.cmd -Clean -Test -Package -CertificateThumbprint <SHA-1>` and upload that zip to the release after the workflow has run, replacing its copy.
+
 ## Release checklist
 
-1. `build.cmd -Clean -Test` passes.
-2. Checked with the headset: install, freeze and unfreeze each hand from the window and with the thumbstick long press, Emergency Release, closing the app with a hand frozen, and uninstall.
-3. Version updated (see Versioning).
-4. Binaries signed.
+1. `build.cmd -Clean -Test -Package` passes.
+2. The zip works on its own: extracted to a new folder, `install-driver.cmd`, the app and `uninstall-driver.cmd` all run from there.
+3. Checked with the headset: install, freeze and unfreeze each hand from the window and with the thumbstick press and hold, Emergency Release, closing the app with a hand frozen, and uninstall.
+4. Version updated (see Versioning).
+5. Binaries signed, if you have a certificate (see Releasing).
