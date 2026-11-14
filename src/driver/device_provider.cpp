@@ -224,6 +224,9 @@ void DeviceProvider::RunFrame() {
         ProcessHandRequest(leftRuntime_, true);
         ProcessHandRequest(rightRuntime_, false);
     }
+    const bool autoFreeze = appAlive && ReadSharedLong(&state_->requestedAutoFreeze) != 0;
+    pose_hook::SetAutoFreezeDevices(autoFreeze ? ReadSharedLong(&state_->leftTargetDeviceIndex) : kInvalidDeviceIndex,
+                                    autoFreeze ? ReadSharedLong(&state_->rightTargetDeviceIndex) : kInvalidDeviceIndex);
     LogSleepingController(leftRuntime_, true);
     LogSleepingController(rightRuntime_, false);
     PublishHand(leftRuntime_, true);

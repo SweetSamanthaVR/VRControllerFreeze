@@ -35,6 +35,7 @@ void DriverLink::BeginSession() {
     WriteSharedLong(&state_->requestedLeftFrozen, 0);
     WriteSharedLong(&state_->requestedRightFrozen, 0);
     WriteSharedLong(&state_->requestedEmergencyRelease, 0);
+    WriteSharedLong(&state_->requestedAutoFreeze, std::wstring(::GetCommandLineW()).find(L"--auto-freeze") != std::wstring::npos ? 1 : 0);
     NextSequence(&state_->leftRequestSequence);
     NextSequence(&state_->rightRequestSequence);
 }

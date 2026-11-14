@@ -71,6 +71,8 @@ Amber means something needs your attention and red means something went wrong; t
 
 A freeze holds one device. If SteamVR moves a hand to a different device (for example when the Quest switches from controllers to hand tracking), the freeze stops affecting that hand. The hand's card turns amber with **Not in effect**, and the Live Log explains; unfreeze and freeze again.
 
+**Auto-freeze:** start the app with the command `--auto-freeze`, this can be done by creating a shortcut, putting the target field in quotes, then adding `--auto-freeze` at the end. Each hand then holds its last tracked position while its controller is asleep or not tracking, and follows the controller again when it wakes.
+
 ## Controls
 
 | Control | Action |

@@ -97,6 +97,7 @@ struct SharedState {
     volatile LONG rightPoseUpdateCount;
     volatile LONG leftPoseUpdateDeviceIndex;
     volatile LONG rightPoseUpdateDeviceIndex;
+    volatile LONG requestedAutoFreeze;
 };
 #pragma pack(pop)
 

@@ -41,6 +41,7 @@ FreezeOutcome Freeze(std::uint32_t deviceIndex, DWORD maxPoseAgeMs);
 // Lets deviceIndex follow its live pose again. No effect if it is not frozen.
 void Release(std::uint32_t deviceIndex);
 void ReleaseAll();
+void SetAutoFreezeDevices(LONG left, LONG right);
 
 // Whether the controller's own latest pose for deviceIndex reports it connected (true before any
 // pose). A frozen device keeps reporting its captured pose either way; this is for diagnostics.
