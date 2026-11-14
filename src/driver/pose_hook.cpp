@@ -18,6 +18,7 @@ struct DeviceSlot {
     vr::DriverPose_t lastPose{};
     DWORD lastPoseMs = 0;
     bool hasPose = false;
+    vr::DriverPose_t trackedPose{};
     vr::DriverPose_t frozenPose{};
     bool frozen = false;
 };
@@ -26,6 +27,8 @@ SRWLOCK g_lock = SRWLOCK_INIT;
 std::array<DeviceSlot, kMaxDevices> g_devices{};
 volatile LONG g_updateCounts[kMaxDevices]{};
 volatile LONG g_active = 0;
+LONG g_autoFreezeLeft = kInvalidDeviceIndex;
+LONG g_autoFreezeRight = kInvalidDeviceIndex;
 PoseUpdatedFn g_original = nullptr;
 
 void DetourTrackedDevicePoseUpdated(vr::IVRServerDriverHost* self, std::uint32_t deviceIndex,
@@ -45,11 +48,22 @@ void DetourTrackedDevicePoseUpdated(vr::IVRServerDriverHost* self, std::uint32_t
     slot.lastPose = pose;
     slot.lastPoseMs = ::GetTickCount();
     slot.hasPose = true;
+    const bool tracked = pose.poseIsValid && pose.deviceIsConnected;
+    if (tracked) slot.trackedPose = pose;
     // A frozen device reports its captured pose whatever the controller says, including when it goes
     // to sleep and reports itself disconnected: passing that on would make SteamVR drop the hand role,
     // so games would lose the hand and snap it back when the controller wakes.
     if (slot.frozen) {
         frozenPose = slot.frozenPose;
+        submitFrozen = true;
+    } else if (!tracked && slot.trackedPose.poseIsValid &&
+               (static_cast<LONG>(deviceIndex) == g_autoFreezeLeft || static_cast<LONG>(deviceIndex) == g_autoFreezeRight)) {
+        frozenPose = slot.trackedPose;
+        frozenPose.poseTimeOffset = 0.0;
+        for (int i = 0; i < 3; ++i) {
+            frozenPose.vecVelocity[i] = frozenPose.vecAcceleration[i] = 0.0;
+            frozenPose.vecAngularVelocity[i] = frozenPose.vecAngularAcceleration[i] = 0.0;
+        }
         submitFrozen = true;
     }
     ::ReleaseSRWLockExclusive(&g_lock);
@@ -141,6 +155,13 @@ void Release(std::uint32_t deviceIndex) {
 void ReleaseAll() {
     ::AcquireSRWLockExclusive(&g_lock);
     for (DeviceSlot& slot : g_devices) slot.frozen = false;
+    ::ReleaseSRWLockExclusive(&g_lock);
+}
+
+void SetAutoFreezeDevices(LONG left, LONG right) {
+    ::AcquireSRWLockExclusive(&g_lock);
+    g_autoFreezeLeft = left;
+    g_autoFreezeRight = right;
     ::ReleaseSRWLockExclusive(&g_lock);
 }
 
